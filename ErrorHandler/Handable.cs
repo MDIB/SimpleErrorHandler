@@ -6,7 +6,33 @@ using System.Threading.Tasks;
 
 namespace ErrorHandler
 {
-    public class Handable
+    //I've added 3 simple interfaces that you should not use 
+    //to declare, just done it to prevent errors in use of the class.
+    
+    public interface Step1
+    {
+         Step1 ForValue(Object value);
+         Step1 ForFunction<R, P1>(Func<P1, R> fn);
+         Step1 ForFunction<R, P1, P2>(Func<P1, P2, R> fn);
+         Step1 ForFunction<R, P1, P2, P3>(Func<P1, P2, P3, R> fn);
+         Step1 OnError(Action fn);
+         Step1 OnError(Action<Exception> fn);
+         Step1 OnSucess(Action fn);
+         Step1 OnSucess<R>(Action<R> fn);
+         Step2 Execute<R, P1>();
+         Step2 Execute<R, P1, P2>();
+         Step2 Execute<R, P1, P2, P3>();
+    }
+    public interface Step2
+    {
+         Step2 Execute<R, P1>();
+         Step2 Execute<R, P1, P2>();
+         Step2 Execute<R, P1, P2, P3>();
+         Step2 Execute<R, P1, P2>(P2 param2);
+         R Finish<R>(R def);
+    }
+  
+    public class Handable : Step1,Step2
     {
         private bool first = true;
         private Exception error = null;
@@ -17,58 +43,58 @@ namespace ErrorHandler
         private List<Action> sucessObservers = new List<Action>();
         private List<Object> sucessWithParamObservers = new List<Object>();
         private Object retorno;
-        
 
-        public Handable ForValue(Object value)
+
+        public Step1 ForValue(Object value)
         {   
             values.Add(value);
-            return this;
-        }       
-
-        public Handable ForFunction<R,P1>(Func<P1,R> fn)
-        {
-            handlers.Add(fn);
-            return this;
-        }
-        
-        public Handable ForFunction<R,P1,P2>(Func<P1,P2,R> fn)
-        {
-            handlers.Add(fn);
-            return this;
-        }
-        
-        public Handable ForFunction<R,P1,P2,P3>(Func<P1,P2,P3,R> fn)
-        {
-            handlers.Add(fn);
-            return this;
+            return (Step1)this;
         }
 
-        public Handable OnError(Action fn) 
+        public Step1 ForFunction<R, P1>(Func<P1, R> fn)
+        {
+            handlers.Add(fn);
+            return (Step1)this;
+        }
+
+        public Step1 ForFunction<R, P1, P2>(Func<P1, P2, R> fn)
+        {
+            handlers.Add(fn);
+            return (Step1)this;
+        }
+
+        public Step1 ForFunction<R, P1, P2, P3>(Func<P1, P2, P3, R> fn)
+        {
+            handlers.Add(fn);
+            return (Step1)this;
+        }
+
+        public Step1 OnError(Action fn) 
         {
             errorObservers.Add(fn);
-            return this;
+            return (Step1)this;
         }
-        public Handable OnError(Action<Exception> fn)
+        public Step1 OnError(Action<Exception> fn)
         {
             errorWithParamObservers.Add(fn);
-            return this;
+            return (Step1)this;
         }
-        public Handable OnSucess(Action fn)
+        public Step1 OnSucess(Action fn)
         {
             sucessObservers.Add(fn);
-            return this;
+            return (Step1)this;
         }
 
-        public Handable OnSucess<R>(Action<R> fn)
+        public Step1 OnSucess<R>(Action<R> fn)
         {
             sucessWithParamObservers.Add(fn);
-            return this;
+            return (Step1)this;
         }
 
         #region Executar funcao com 1 parametro
-        public Handable Execute<R, P1>()
+        public Step2 Execute<R, P1>()
         {
-            if (error!=null) return this;
+            if (error != null) return (Step2)this;
             try
             {
               P1 param = (first) ? (P1)values.ElementAt(0) : (P1)retorno;
@@ -86,12 +112,12 @@ namespace ErrorHandler
             {
                 error = ex;
             }
-            return this;
+            return (Step2)this;
         }
         #endregion
 
         #region Executar funcao com 2 parametro
-        public Handable Execute<R, P1, P2>()
+        public Step2 Execute<R, P1, P2>()
         {
             if (!first) throw new Exception("Invocacao ilegal no Handable !");
             first = false;
@@ -106,12 +132,12 @@ namespace ErrorHandler
             {
                 error = ex;
             }
-            return this;
+            return (Step2)this;
         }
         #endregion
 
         #region Executar funcao com 3 parametro
-        public Handable Execute<R, P1, P2, P3>()
+        public Step2 Execute<R, P1, P2, P3>()
         {
             if (!first) throw new Exception("Invocacao ilegal no Handable !");
             first = false;
@@ -126,13 +152,13 @@ namespace ErrorHandler
             {
                 error = ex;
             }
-            return this;
+            return (Step2)this;
         }
         #endregion
         #region Executar funcao com um parametro externo
-        public Handable Execute<R, P1, P2>(P2 param2)
+        public Step2 Execute<R, P1, P2>(P2 param2)
         {
-            if (error!=null) return this;
+            if (error != null) return (Step2)this;
             first = false;
             try
             {
@@ -145,7 +171,7 @@ namespace ErrorHandler
             {
                 error = ex;
             }
-            return this;
+            return (Step2)this;
         }
         #endregion
         public R Finish<R>(R def)
