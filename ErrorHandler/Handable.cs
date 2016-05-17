@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ErrorHandler
 {
-    //I've added 3 simple interfaces that you should not use 
+    //I've added 2 simple interfaces that you should not use 
     //to declare, just done it to prevent errors in use of the class.
     
     public interface Step1
